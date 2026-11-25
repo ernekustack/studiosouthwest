@@ -13,8 +13,6 @@
       --text-foam: #F4F6F8;
       --text-muted: rgba(244, 246, 248, 0.45);
       --accent-buoy: #FF5A26;
-      --beam-cyan: rgba(165, 243, 252, 0.34);
-      --beam-core: rgba(255, 255, 255, 0.72);
     }
 
     * {
@@ -58,7 +56,7 @@
       object-fit: cover;
       object-position: center;
       z-index: 1;
-      filter: brightness(0.88) contrast(1.06);
+      filter: brightness(0.9) contrast(1.06);
       user-select: none;
       pointer-events: none;
     }
@@ -69,9 +67,8 @@
       inset: 0;
       z-index: 2;
       background:
-        radial-gradient(circle at 74% 22%, rgba(255, 248, 220, 0.14) 0%, transparent 18%),
-        linear-gradient(90deg, rgba(8, 16, 24, 0.84) 0%, rgba(8, 16, 24, 0.42) 48%, rgba(8, 16, 24, 0.18) 100%),
-        linear-gradient(180deg, rgba(8, 16, 24, 0.65) 0%, transparent 25%, rgba(8, 16, 24, 0.92) 100%);
+        linear-gradient(90deg, rgba(8, 16, 24, 0.82) 0%, rgba(8, 16, 24, 0.36) 48%, rgba(8, 16, 24, 0.14) 100%),
+        linear-gradient(180deg, rgba(8, 16, 24, 0.6) 0%, transparent 25%, rgba(8, 16, 24, 0.9) 100%);
       pointer-events: none;
     }
 
@@ -155,7 +152,7 @@
       margin-bottom: auto;
       display: flex;
       flex-direction: column;
-      gap: 1.65rem;
+      gap: 1.85rem;
       padding-left: 0.5rem;
     }
 
@@ -165,7 +162,7 @@
       text-transform: uppercase;
       letter-spacing: 0.16em;
       color: rgba(165, 243, 252, 0.75);
-      margin-bottom: 0.25rem;
+      margin-bottom: 0.1rem;
     }
 
     .beacon-item {
@@ -174,7 +171,7 @@
       align-items: baseline;
       gap: 1.1rem;
       text-decoration: none;
-      padding: 0.45rem 0 0.45rem 1.4rem;
+      padding: 0.35rem 0 0.35rem 1.4rem;
       border-left: 2px solid rgba(255, 255, 255, 0.14);
       transition: all 0.65s cubic-bezier(0.22, 1, 0.36, 1);
       cursor: pointer;
@@ -204,9 +201,11 @@
 
     .beacon-sub {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      font-size: 0.88rem;
+      font-size: 0.86rem;
+      line-height: 1.35;
       color: rgba(244, 246, 248, 0);
       max-height: 0;
+      opacity: 0;
       overflow: hidden;
       transition: all 0.65s cubic-bezier(0.22, 1, 0.36, 1);
     }
@@ -230,8 +229,9 @@
 
     .beacon-item.illuminated .beacon-sub {
       color: rgba(244, 246, 248, 0.82);
-      max-height: 2.5rem;
-      margin-top: 0.2rem;
+      max-height: 3.2rem;
+      opacity: 1;
+      margin-top: 0.25rem;
     }
 
     /* UNTERE STATUSLEISTE */
@@ -310,7 +310,7 @@
         gap: 0.9rem;
       }
       .beacon-nav {
-        gap: 1.2rem;
+        gap: 1.35rem;
       }
       .content-sections {
         padding: 3rem 1.5rem;
@@ -325,32 +325,31 @@
     <img src="coast.jpg" alt="Alentejo Atlantikküste mit Leuchtturm" class="coast-bg" />
     <div class="coast-vignette"></div>
 
-    <!-- Dynamischer Leuchtturm-Lichtstrahl -->
-    <svg class="lighthouse-beam-layer" id="beamSvg" viewBox="0 0 1600 900" preserveAspectRatio="none">
+    <!-- Dynamischer Leuchtturm-Lichtstrahl (xMidYMid slice passend zu object-fit: cover) -->
+    <svg class="lighthouse-beam-layer" id="beamSvg" viewBox="0 0 1600 900" preserveAspectRatio="xMidYMid slice">
       <defs>
-        <!-- Weicher Farbverlauf vom Leuchtturm weg -->
-        <linearGradient id="beamGrad" x1="100%" y1="0%" x2="0%" y2="0%">
-          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.92" />
-          <stop offset="18%" stop-color="#A5F3FC" stop-opacity="0.52" />
-          <stop offset="65%" stop-color="#38BDF8" stop-opacity="0.22" />
+        <!-- Lichtverlauf: startet eng & hell an der Laterne oben rechts, fächert nach links auf -->
+        <linearGradient id="beamGrad" x1="100%" y1="15%" x2="0%" y2="50%">
+          <stop offset="0%" stop-color="#FFFBEB" stop-opacity="0.85" />
+          <stop offset="14%" stop-color="#BAE6FD" stop-opacity="0.45" />
+          <stop offset="60%" stop-color="#38BDF8" stop-opacity="0.18" />
           <stop offset="100%" stop-color="#0EA5E9" stop-opacity="0.0" />
         </linearGradient>
 
-        <!-- Weichzeichner für atmosphärischen Nebel-Effekt -->
         <filter id="beamBlur" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="14" />
+          <feGaussianBlur stdDeviation="16" />
         </filter>
         <filter id="coreBlur" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="4" />
+          <feGaussianBlur stdDeviation="5" />
         </filter>
       </defs>
 
       <!-- Äußerer atmosphärischer Lichtkegel -->
-      <polygon id="beamOuter" points="1185,195 0,250 0,430" fill="url(#beamGrad)" filter="url(#beamBlur)" />
+      <polygon id="beamOuter" points="1282,148 -40,220 -40,380" fill="url(#beamGrad)" filter="url(#beamBlur)" />
       <!-- Heller innerer Lichtkern -->
-      <polygon id="beamCore" points="1185,195 0,305 0,375" fill="url(#beamGrad)" filter="url(#coreBlur)" opacity="0.75" />
-      <!-- Leuchtpunkt direkt in der Laterne -->
-      <circle id="lanternGlow" cx="1185" cy="195" r="16" fill="#FFFFFF" filter="url(#coreBlur)" />
+      <polygon id="beamCore" points="1282,148 -40,275 -40,325" fill="url(#beamGrad)" filter="url(#coreBlur)" opacity="0.65" />
+      <!-- Dezenter Schimmer direkt in der Laternenkuppel -->
+      <circle id="lanternGlow" cx="1282" cy="148" r="6" fill="#FEF3C7" filter="url(#coreBlur)" opacity="0.6" />
     </svg>
 
     <!-- Kopfbereich -->
@@ -438,13 +437,9 @@
 
   <script>
     (function () {
-      // =========================================================
-      // FEINJUSTIERUNG DER LEUCHTTURM-POSITION (im 1600x900 Raster)
-      // Falls die Laterne auf deinem Bildschirm leicht versetzt ist,
-      // einfach BEACON_X (links/rechts) und BEACON_Y (oben/unten) anpassen.
-      // =========================================================
-      const BEACON_X = 1178;
-      const BEACON_Y = 196;
+      // Ursprung direkt in der Laterne des Leuchtturms (im 1600x900 Bildraum)
+      const BEACON_X = 1282;
+      const BEACON_Y = 148;
 
       // Zeit in Millisekunden pro Menüpunkt (5500 = 5,5 Sekunden)
       const STEP_DURATION = 5500;
@@ -466,7 +461,6 @@
       let isHovering = false;
       let lastSwitchTime = performance.now();
 
-      // Berechnet die exakte Y-Koordinate eines Menüpunkts im 1600x900 SVG-Raum
       function getItemTargetY(index) {
         const stageRect = stage.getBoundingClientRect();
         const itemRect = items[index].getBoundingClientRect();
@@ -482,7 +476,6 @@
         currentTargetY = getItemTargetY(index);
       }
 
-      // Maus-Interaktion: Strahl schwenkt direkt auf den berührten Punkt
       items.forEach((item, idx) => {
         item.addEventListener('mouseenter', () => {
           isHovering = true;
@@ -494,19 +487,16 @@
         });
       });
 
-      // Automatik-Schalter
       toggleBtn.addEventListener('click', () => {
         isAuto = !isAuto;
         toggleBtn.textContent = isAuto ? 'STRAHL: AUTOMATIK AN' : 'STRAHL: PAUSIERT';
         lastSwitchTime = performance.now();
       });
 
-      // Bei Fenstergrößenänderung Zielhöhe neu berechnen
       window.addEventListener('resize', () => {
         currentTargetY = getItemTargetY(activeIndex);
       });
 
-      // Sanfte Animationsschleife (60fps)
       function animate(now) {
         if (isAuto && !isHovering && (now - lastSwitchTime >= STEP_DURATION)) {
           const nextIndex = (activeIndex + 1) % items.length;
@@ -514,12 +504,10 @@
           lastSwitchTime = now;
         }
 
-        // Weiches Gleiten des Lichtkegels (Easing)
         displayedY += (currentTargetY - displayedY) * 0.045;
 
-        // Kegelbreite an der linken Kante
-        const outerSpread = 105;
-        const coreSpread = 38;
+        const outerSpread = 115;
+        const coreSpread = 40;
 
         beamOuter.setAttribute(
           'points',
@@ -533,7 +521,6 @@
         requestAnimationFrame(animate);
       }
 
-      // Initialisierung nach kurzem Layout-Setzen
       setTimeout(() => {
         setActiveItem(0);
         displayedY = currentTargetY;
