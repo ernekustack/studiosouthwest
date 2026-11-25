@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>STUDIO SOUTHWEST — Design-Atelier & Product Studio</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-abyss: #081018;
+      --text-foam: #F4F6F8;
+      --text-muted: rgba(244, 246, 248, 0.45);
+      --accent-buoy: #FF5A26;
+      --beam-cyan: rgba(165, 243, 252, 0.34);
+      --beam-core: rgba(255, 255, 255, 0.72);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background-color: var(--bg-abyss);
+      color: var(--text-foam);
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+
+    body {
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    /* HERO BÜHNE */
+    .hero-stage {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      min-height: 640px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 2.2rem 3.5rem;
+      background-color: var(--bg-abyss);
+    }
+
+    /* HINTERGRUNDBILD (Küste & Leuchtturm) */
+    .coast-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      z-index: 1;
+      filter: brightness(0.88) contrast(1.06);
+      user-select: none;
+      pointer-events: none;
+    }
+
+    /* Subtile Vignette für perfekte Lesbarkeit links & oben */
+    .coast-vignette {
+      position: absolute;
+      inset: 0;
+      z-index: 2;
+      background:
+        radial-gradient(circle at 74% 22%, rgba(255, 248, 220, 0.14) 0%, transparent 18%),
+        linear-gradient(90deg, rgba(8, 16, 24, 0.84) 0%, rgba(8, 16, 24, 0.42) 48%, rgba(8, 16, 24, 0.18) 100%),
+        linear-gradient(180deg, rgba(8, 16, 24, 0.65) 0%, transparent 25%, rgba(8, 16, 24, 0.92) 100%);
+      pointer-events: none;
+    }
+
+    /* ANIMIERTER LICHTSTRAHL (SVG OVERLAY) */
+    .lighthouse-beam-layer {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 3;
+      pointer-events: none;
+      mix-blend-mode: screen;
+    }
+
+    /* HEADER */
+    .top-bar {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
+
+    .brand {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .brand-title {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(1.6rem, 2.4vw, 2.3rem);
+      letter-spacing: 0.04em;
+      line-height: 1;
+      color: var(--text-foam);
+      text-decoration: none;
+    }
+
+    .brand-coords {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+    }
+
+    .telemetry {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      letter-spacing: 0.1em;
+      color: var(--accent-buoy);
+      background: rgba(8, 16, 24, 0.55);
+      backdrop-filter: blur(8px);
+      padding: 0.55rem 0.95rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 999px;
+    }
+
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: var(--accent-buoy);
+      box-shadow: 0 0 10px var(--accent-buoy);
+      animation: pulse 2.4s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.45; transform: scale(0.8); }
+    }
+
+    /* ZENTRALES LEUCHTTURM-MENÜ */
+    .beacon-nav {
+      position: relative;
+      z-index: 10;
+      max-width: 580px;
+      margin-top: auto;
+      margin-bottom: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.65rem;
+      padding-left: 0.5rem;
+    }
+
+    .nav-kicker {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: rgba(165, 243, 252, 0.75);
+      margin-bottom: 0.25rem;
+    }
+
+    .beacon-item {
+      position: relative;
+      display: flex;
+      align-items: baseline;
+      gap: 1.1rem;
+      text-decoration: none;
+      padding: 0.45rem 0 0.45rem 1.4rem;
+      border-left: 2px solid rgba(255, 255, 255, 0.14);
+      transition: all 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+      cursor: pointer;
+    }
+
+    .beacon-index {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      transition: color 0.65s ease;
+    }
+
+    .beacon-content {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .beacon-label {
+      font-family: 'Instrument Serif', serif;
+      font-size: clamp(2.1rem, 3.6vw, 3.3rem);
+      line-height: 1.05;
+      color: rgba(244, 246, 248, 0.34);
+      letter-spacing: 0.01em;
+      transition: color 0.65s ease, text-shadow 0.65s ease, transform 0.65s ease;
+    }
+
+    .beacon-sub {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 0.88rem;
+      color: rgba(244, 246, 248, 0);
+      max-height: 0;
+      overflow: hidden;
+      transition: all 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    /* ZUSTAND WENN DER LICHTSTRAHL DEN MENÜPUNKT TRIFFT */
+    .beacon-item.illuminated {
+      border-left-color: #A5F3FC;
+      transform: translateX(8px);
+    }
+
+    .beacon-item.illuminated .beacon-index {
+      color: var(--accent-buoy);
+    }
+
+    .beacon-item.illuminated .beacon-label {
+      color: #FFFFFF;
+      text-shadow:
+        0 0 28px rgba(165, 243, 252, 0.65),
+        0 0 60px rgba(165, 243, 252, 0.28);
+    }
+
+    .beacon-item.illuminated .beacon-sub {
+      color: rgba(244, 246, 248, 0.82);
+      max-height: 2.5rem;
+      margin-top: 0.2rem;
+    }
+
+    /* UNTERE STATUSLEISTE */
+    .bottom-bar {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .beam-control {
+      background: rgba(8, 16, 24, 0.65);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      color: var(--text-foam);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: border-color 0.3s ease, background 0.3s ease;
+    }
+
+    .beam-control:hover {
+      border-color: var(--accent-buoy);
+      background: rgba(255, 90, 38, 0.14);
+    }
+
+    /* PLATZHALTER-SEKTIONEN UNTERHALB (für direkte Anker-Tests) */
+    .content-sections {
+      position: relative;
+      z-index: 10;
+      background: #081018;
+      padding: 5rem 3.5rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .section-card {
+      padding: 2rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.02);
+      border-radius: 4px;
+    }
+
+    .section-card span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      color: var(--accent-buoy);
+    }
+
+    .section-card h2 {
+      font-family: 'Instrument Serif', serif;
+      font-size: 2rem;
+      font-weight: 400;
+      margin: 0.5rem 0 0.75rem;
+    }
+
+    .section-card p {
+      font-size: 0.92rem;
+      line-height: 1.6;
+      color: rgba(244, 246, 248, 0.7);
+    }
+
+    @media (max-width: 768px) {
+      .hero-stage {
+        padding: 1.5rem;
+      }
+      .top-bar {
+        flex-direction: column;
+        gap: 0.9rem;
+      }
+      .beacon-nav {
+        gap: 1.2rem;
+      }
+      .content-sections {
+        padding: 3rem 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="hero-stage" id="heroStage">
+    <!-- Hintergrundbild (Steilküste & Leuchtturm) -->
+    <img src="coast.jpg" alt="Alentejo Atlantikküste mit Leuchtturm" class="coast-bg" />
+    <div class="coast-vignette"></div>
+
+    <!-- Dynamischer Leuchtturm-Lichtstrahl -->
+    <svg class="lighthouse-beam-layer" id="beamSvg" viewBox="0 0 1600 900" preserveAspectRatio="none">
+      <defs>
+        <!-- Weicher Farbverlauf vom Leuchtturm weg -->
+        <linearGradient id="beamGrad" x1="100%" y1="0%" x2="0%" y2="0%">
+          <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.92" />
+          <stop offset="18%" stop-color="#A5F3FC" stop-opacity="0.52" />
+          <stop offset="65%" stop-color="#38BDF8" stop-opacity="0.22" />
+          <stop offset="100%" stop-color="#0EA5E9" stop-opacity="0.0" />
+        </linearGradient>
+
+        <!-- Weichzeichner für atmosphärischen Nebel-Effekt -->
+        <filter id="beamBlur" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="14" />
+        </filter>
+        <filter id="coreBlur" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="4" />
+        </filter>
+      </defs>
+
+      <!-- Äußerer atmosphärischer Lichtkegel -->
+      <polygon id="beamOuter" points="1185,195 0,250 0,430" fill="url(#beamGrad)" filter="url(#beamBlur)" />
+      <!-- Heller innerer Lichtkern -->
+      <polygon id="beamCore" points="1185,195 0,305 0,375" fill="url(#beamGrad)" filter="url(#coreBlur)" opacity="0.75" />
+      <!-- Leuchtpunkt direkt in der Laterne -->
+      <circle id="lanternGlow" cx="1185" cy="195" r="16" fill="#FFFFFF" filter="url(#coreBlur)" />
+    </svg>
+
+    <!-- Kopfbereich -->
+    <header class="top-bar">
+      <div class="brand">
+        <a href="#" class="brand-title">STUDIO SOUTHWEST</a>
+        <span class="brand-coords">37.6° N, 8.7° W • ALENTEJO COAST</span>
+      </div>
+      <div class="telemetry">
+        <span class="pulse-dot"></span>
+        <span>DESIGN-ATELIER & PRODUCT STUDIO</span>
+      </div>
+    </header>
+
+    <!-- Leuchtturm-Navigation -->
+    <nav class="beacon-nav" id="beaconNav" aria-label="Hauptnavigation">
+      <div class="nav-kicker">// BEACON NAVIGATION</div>
+
+      <a href="#apps-produkte" class="beacon-item illuminated" data-index="0">
+        <span class="beacon-index">01</span>
+        <div class="beacon-content">
+          <span class="beacon-label">Apps & Produkte</span>
+          <span class="beacon-sub">Maßgeschneiderte digitale Produkte, Web-Apps & Plattformen</span>
+        </div>
+      </a>
+
+      <a href="#web-design" class="beacon-item" data-index="1">
+        <span class="beacon-index">02</span>
+        <div class="beacon-content">
+          <span class="beacon-label">Web & Design</span>
+          <span class="beacon-sub">Relaunches, visuelle Identitäten & interaktive Web-Erlebnisse</span>
+        </div>
+      </a>
+
+      <a href="#studio" class="beacon-item" data-index="2">
+        <span class="beacon-index">03</span>
+        <div class="beacon-content">
+          <span class="beacon-label">Projekte & Studio</span>
+          <span class="beacon-sub">Praxisbeispiele wie Alentejo Eventos, Rumo & Studio-Profil</span>
+        </div>
+      </a>
+
+      <a href="#kontakt" class="beacon-item" data-index="3">
+        <span class="beacon-index">04</span>
+        <div class="beacon-content">
+          <span class="beacon-label">Kontakt</span>
+          <span class="beacon-sub">Direkter Draht für neue Projekte & Zusammenarbeit</span>
+        </div>
+      </a>
+    </nav>
+
+    <!-- Fußzeile -->
+    <footer class="bottom-bar">
+      <span>SWELL SYNC • SWEEP INTERVAL: 5.5S</span>
+      <button class="beam-control" id="toggleSweepBtn" type="button">STRAHL: AUTOMATIK AN</button>
+    </footer>
+  </main>
+
+  <!-- Ziel-Sektionen für die Anker-Links (Schrittweise ausbaubar) -->
+  <section class="content-sections">
+    <article class="section-card" id="apps-produkte">
+      <span>01 // PRODUCT STUDIO</span>
+      <h2>Apps & Produkte</h2>
+      <p>Entwicklung schlanker, leistungsstarker Web- und Mobile-Applikationen – von der ersten Idee bis zur Veröffentlichung.</p>
+    </article>
+
+    <article class="section-card" id="web-design">
+      <span>02 // DESIGN-ATELIER</span>
+      <h2>Web & Design</h2>
+      <p>Charakterstarke Webauftritte und Relaunches jenseits austauschbarer Standard-Templates.</p>
+    </article>
+
+    <article class="section-card" id="studio">
+      <span>03 // PORTFOLIO</span>
+      <h2>Projekte & Studio</h2>
+      <p>Digitale Werkzeuge und regionale Plattformen entwickelt an der Südwestküste Portugals.</p>
+    </article>
+
+    <article class="section-card" id="kontakt">
+      <span>04 // DIRECT LINE</span>
+      <h2>Kontakt</h2>
+      <p>Bereit für ein neues Projekt oder einen Relaunch? Hier folgt im nächsten Schritt dein direkter Kontaktweg.</p>
+    </article>
+  </section>
+
+  <script>
+    (function () {
+      // =========================================================
+      // FEINJUSTIERUNG DER LEUCHTTURM-POSITION (im 1600x900 Raster)
+      // Falls die Laterne auf deinem Bildschirm leicht versetzt ist,
+      // einfach BEACON_X (links/rechts) und BEACON_Y (oben/unten) anpassen.
+      // =========================================================
+      const BEACON_X = 1178;
+      const BEACON_Y = 196;
+
+      // Zeit in Millisekunden pro Menüpunkt (5500 = 5,5 Sekunden)
+      const STEP_DURATION = 5500;
+
+      const stage = document.getElementById('heroStage');
+      const beamOuter = document.getElementById('beamOuter');
+      const beamCore = document.getElementById('beamCore');
+      const lanternGlow = document.getElementById('lanternGlow');
+      const items = Array.from(document.querySelectorAll('.beacon-item'));
+      const toggleBtn = document.getElementById('toggleSweepBtn');
+
+      lanternGlow.setAttribute('cx', BEACON_X);
+      lanternGlow.setAttribute('cy', BEACON_Y);
+
+      let currentTargetY = 340;
+      let displayedY = 340;
+      let activeIndex = 0;
+      let isAuto = true;
+      let isHovering = false;
+      let lastSwitchTime = performance.now();
+
+      // Berechnet die exakte Y-Koordinate eines Menüpunkts im 1600x900 SVG-Raum
+      function getItemTargetY(index) {
+        const stageRect = stage.getBoundingClientRect();
+        const itemRect = items[index].getBoundingClientRect();
+        const centerY = (itemRect.top + itemRect.height / 2) - stageRect.top;
+        return (centerY / stageRect.height) * 900;
+      }
+
+      function setActiveItem(index) {
+        activeIndex = index;
+        items.forEach((el, idx) => {
+          el.classList.toggle('illuminated', idx === index);
+        });
+        currentTargetY = getItemTargetY(index);
+      }
+
+      // Maus-Interaktion: Strahl schwenkt direkt auf den berührten Punkt
+      items.forEach((item, idx) => {
+        item.addEventListener('mouseenter', () => {
+          isHovering = true;
+          setActiveItem(idx);
+        });
+        item.addEventListener('mouseleave', () => {
+          isHovering = false;
+          lastSwitchTime = performance.now();
+        });
+      });
+
+      // Automatik-Schalter
+      toggleBtn.addEventListener('click', () => {
+        isAuto = !isAuto;
+        toggleBtn.textContent = isAuto ? 'STRAHL: AUTOMATIK AN' : 'STRAHL: PAUSIERT';
+        lastSwitchTime = performance.now();
+      });
+
+      // Bei Fenstergrößenänderung Zielhöhe neu berechnen
+      window.addEventListener('resize', () => {
+        currentTargetY = getItemTargetY(activeIndex);
+      });
+
+      // Sanfte Animationsschleife (60fps)
+      function animate(now) {
+        if (isAuto && !isHovering && (now - lastSwitchTime >= STEP_DURATION)) {
+          const nextIndex = (activeIndex + 1) % items.length;
+          setActiveItem(nextIndex);
+          lastSwitchTime = now;
+        }
+
+        // Weiches Gleiten des Lichtkegels (Easing)
+        displayedY += (currentTargetY - displayedY) * 0.045;
+
+        // Kegelbreite an der linken Kante
+        const outerSpread = 105;
+        const coreSpread = 38;
+
+        beamOuter.setAttribute(
+          'points',
+          `${BEACON_X},${BEACON_Y} -40,${displayedY - outerSpread} -40,${displayedY + outerSpread}`
+        );
+        beamCore.setAttribute(
+          'points',
+          `${BEACON_X},${BEACON_Y} -40,${displayedY - coreSpread} -40,${displayedY + coreSpread}`
+        );
+
+        requestAnimationFrame(animate);
+      }
+
+      // Initialisierung nach kurzem Layout-Setzen
+      setTimeout(() => {
+        setActiveItem(0);
+        displayedY = currentTargetY;
+        requestAnimationFrame(animate);
+      }, 80);
+    })();
+  </script>
+</body>
+</html>
