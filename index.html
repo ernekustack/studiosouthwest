@@ -80,13 +80,21 @@
       mix-blend-mode: screen;
     }
 
+    /* HEADER: STUDIO SOUTHWEST UND BADGE NEBENEINANDER IM FREIEN HIMMEL */
     .top-bar {
       position: relative;
       z-index: 10;
       display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem 2.2rem;
+      max-width: 72%;
+    }
+
+    .brand {
+      display: flex;
       flex-direction: column;
-      align-items: flex-start;
-      gap: 0.7rem;
+      gap: 0.35rem;
     }
 
     .brand-title {
@@ -101,7 +109,6 @@
 
     .brand-coords {
       display: block;
-      margin-top: 0.35rem;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.72rem;
       letter-spacing: 0.12em;
@@ -118,9 +125,10 @@
       color: var(--accent-buoy);
       background: rgba(8, 16, 24, 0.65);
       backdrop-filter: blur(8px);
-      padding: 0.45rem 0.85rem;
+      padding: 0.45rem 0.9rem;
       border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 999px;
+      white-space: nowrap;
     }
 
     .pulse-dot {
@@ -274,6 +282,10 @@
     @media (max-width: 768px) {
       .hero-stage {
         padding: 1.5rem;
+      }
+      .top-bar {
+        max-width: 100%;
+        gap: 0.6rem;
       }
       .beacon-nav {
         gap: 1.35rem;
