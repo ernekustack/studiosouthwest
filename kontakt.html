@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kontakt — STUDIO SOUTHWEST</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="studio.css" />
+</head>
+<body>
+
+  <header class="sub-header">
+    <a href="index.html" class="sub-brand">
+      <span class="sub-brand-title">STUDIO SOUTHWEST</span>
+      <span class="sub-brand-coords">37.6° N, 8.7° W • ALENTEJO COAST</span>
+    </a>
+    <nav class="sub-nav" aria-label="Hauptnavigation">
+      <a href="apps.html"><span>01</span> Apps & Produkte</a>
+      <a href="design.html"><span>02</span> Web & Design</a>
+      <a href="projekte.html"><span>03</span> Projekte & Studio</a>
+      <a href="kontakt.html" class="active"><span>04</span> Kontakt</a>
+    </nav>
+  </header>
+
+  <main class="page-wrap">
+    <section class="page-hero">
+      <div class="page-kicker">// 04 • DIRECT LINE</div>
+      <h1 class="page-title">Kontakt</h1>
+      <p class="page-lead">
+        Du planst ein neues digitales Produkt, einen Web-Relaunch oder eine Zusammenarbeit? Schreib mir direkt eine Nachricht.
+      </p>
+    </section>
+
+    <section class="contact-layout">
+      <aside class="contact-info">
+        <h3>Direkter Draht</h3>
+        <div class="contact-detail">
+          <span>STANDORT</span>
+          <p>Alentejo, Portugal (37.6° N, 8.7° W)</p>
+        </div>
+        <div class="contact-detail">
+          <span>DOMAIN</span>
+          <p>studiosouthwest.eu</p>
+        </div>
+        <div class="contact-detail">
+          <span>HINWEIS ZUM FORMULAR</span>
+          <p>Auf deinem Netcup-Webspace wird die Nachricht über <code>send-mail.php</code> direkt an deine Zieladresse zugestellt.</p>
+        </div>
+      </aside>
+
+      <form class="contact-form" id="contactForm" action="send-mail.php" method="POST">
+        <!-- Unsichtbares Honeypot-Feld gegen Spam-Bots -->
+        <input type="text" name="website_check" style="display:none" tabindex="-1" autocomplete="off" />
+
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" required placeholder="Dein Name" />
+        </div>
+
+        <div class="form-group">
+          <label for="email">E-Mail-Adresse</label>
+          <input type="email" id="email" name="email" required placeholder="name@beispiel.de" />
+        </div>
+
+        <div class="form-group">
+          <label for="topic">Thema</label>
+          <select id="topic" name="topic">
+            <option value="Apps & Produkte">Apps & Produkte</option>
+            <option value="Web & Design / Relaunch">Web & Design / Relaunch</option>
+            <option value="Projekte & Kooperation">Projekte & Kooperation</option>
+            <option value="Allgemeine Anfrage">Allgemeine Anfrage</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="message">Nachricht</label>
+          <textarea id="message" name="message" rows="5" required placeholder="Kurz schildern, worum es geht..."></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit">Nachricht senden →</button>
+        <div class="form-feedback" id="formFeedback" role="status"></div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="sub-footer">
+    <span>© STUDIO SOUTHWEST • ALENTEJO, PORTUGAL</span>
+    <a href="index.html">← Zurück zum Leuchtturm</a>
+  </footer>
+
+  <script>
+    (function () {
+      const form = document.getElementById('contactForm');
+      const feedback = document.getElementById('formFeedback');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        feedback.className = 'form-feedback';
+        feedback.textContent = 'Wird gesendet...';
+        feedback.style.display = 'block';
+
+        try {
+          const response = await fetch(form.action, {
+            method: 'POST',
+            body: new FormData(form)
+          });
+          const data = await response.json();
+
+          if (response.ok && data.ok) {
+            feedback.className = 'form-feedback success';
+            feedback.textContent = 'Nachricht wurde gesendet. Vielen Dank!';
+            form.reset();
+          } else {
+            feedback.className = 'form-feedback error';
+            feedback.textContent = data.error || 'Senden fehlgeschlagen. Bitte später erneut versuchen.';
+          }
+        } catch (err) {
+          feedback.className = 'form-feedback error';
+          feedback.textContent = 'PHP-Endpunkt noch nicht aktiv (läuft auf deinem Netcup-Server mit send-mail.php).';
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>
