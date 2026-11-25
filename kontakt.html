@@ -10,7 +10,6 @@
   <link rel="stylesheet" href="studio.css" />
 </head>
 <body>
-
   <header class="sub-header">
     <a href="index.html" class="sub-brand">
       <span class="sub-brand-title">STUDIO SOUTHWEST</span>
@@ -26,67 +25,64 @@
 
   <main class="page-wrap">
     <section class="page-hero">
-      <div class="page-kicker">// 04 • DIRECT LINE</div>
-      <h1 class="page-title">Kontakt</h1>
-      <p class="page-lead">
-        Du planst ein neues digitales Produkt, einen Web-Relaunch oder eine Zusammenarbeit? Schreib mir direkt eine Nachricht.
-      </p>
+      <img src="bg-village.jpg" alt="Alentejo am Abend" class="hero-bg-img hero-pos-village" />
+      <div class="hero-overlay"></div>
+      <div class="hero-content">
+        <div class="page-kicker">// 04 • DIREKTER DRAHT</div>
+        <h1 class="page-title">Kontakt</h1>
+        <p class="page-lead">
+          Schreib mir kurz, worum es geht – für neue Webseiten, digitale Produkte oder eine konkrete Projektanfrage.
+        </p>
+      </div>
     </section>
 
-    <section class="contact-layout">
+    <div class="contact-layout">
       <aside class="contact-info">
-        <h3>Direkter Draht</h3>
+        <h3>Studio Southwest</h3>
         <div class="contact-detail">
-          <span>STANDORT</span>
-          <p>Alentejo, Portugal (37.6° N, 8.7° W)</p>
+          <span>Standort</span>
+          <p>Alentejo, Südwestküste Portugal</p>
         </div>
         <div class="contact-detail">
-          <span>DOMAIN</span>
-          <p>studiosouthwest.eu</p>
+          <span>Themen</span>
+          <p>Apps & Produkte, Web & Design, Kooperationen</p>
         </div>
         <div class="contact-detail">
-          <span>HINWEIS ZUM FORMULAR</span>
-          <p>Auf deinem Netcup-Webspace wird die Nachricht über <code>send-mail.php</code> direkt an deine Zieladresse zugestellt.</p>
+          <span>Hinweis</span>
+          <p>Der E-Mail-Versand über <code>send-mail.php</code> ist auf dem Netcup-Server aktiv.</p>
         </div>
       </aside>
 
-      <form class="contact-form" id="contactForm" action="send-mail.php" method="POST">
-        <!-- Unsichtbares Honeypot-Feld gegen Spam-Bots -->
-        <input type="text" name="website_check" style="display:none" tabindex="-1" autocomplete="off" />
-
+      <form class="contact-form" id="contactForm" action="send-mail.php" method="post">
         <div class="form-group">
           <label for="name">Name</label>
-          <input type="text" id="name" name="name" required placeholder="Dein Name" />
+          <input id="name" name="name" type="text" required placeholder="Dein Name" />
         </div>
-
         <div class="form-group">
-          <label for="email">E-Mail-Adresse</label>
-          <input type="email" id="email" name="email" required placeholder="name@beispiel.de" />
+          <label for="email">E-Mail</label>
+          <input id="email" name="email" type="email" required placeholder="dein@beispiel.de" />
         </div>
-
         <div class="form-group">
-          <label for="topic">Thema</label>
+          <label for="topic">Bereich</label>
           <select id="topic" name="topic">
             <option value="Apps & Produkte">Apps & Produkte</option>
-            <option value="Web & Design / Relaunch">Web & Design / Relaunch</option>
-            <option value="Projekte & Kooperation">Projekte & Kooperation</option>
-            <option value="Allgemeine Anfrage">Allgemeine Anfrage</option>
+            <option value="Web & Design">Web & Design</option>
+            <option value="Projekte & Studio">Projekte & Studio</option>
+            <option value="Sonstiges">Sonstiges</option>
           </select>
         </div>
-
         <div class="form-group">
           <label for="message">Nachricht</label>
-          <textarea id="message" name="message" rows="5" required placeholder="Kurz schildern, worum es geht..."></textarea>
+          <textarea id="message" name="message" rows="5" required placeholder="Kurz dein Anliegen schildern..."></textarea>
         </div>
-
-        <button type="submit" class="btn-submit">Nachricht senden →</button>
-        <div class="form-feedback" id="formFeedback" role="status"></div>
+        <button type="submit" class="btn-submit">Nachricht senden</button>
+        <div class="form-feedback" id="formFeedback" role="status" aria-live="polite"></div>
       </form>
-    </section>
+    </div>
   </main>
 
   <footer class="sub-footer">
-    <span>© STUDIO SOUTHWEST • ALENTEJO, PORTUGAL</span>
+    <span>STUDIO SOUTHWEST • ALENTEJO, PORTUGAL</span>
     <a href="index.html">← Zurück zum Leuchtturm</a>
   </footer>
 
@@ -94,8 +90,16 @@
     (function () {
       const form = document.getElementById('contactForm');
       const feedback = document.getElementById('formFeedback');
+      if (!form || !feedback) return;
 
-      form.addEventListener('submit', async (e) => {
+      form.addEventListener('submit', async function (e) {
+        if (window.location.protocol === 'file:' || window.location.hostname.endsWith('github.io')) {
+          e.preventDefault();
+          feedback.className = 'form-feedback error';
+          feedback.textContent = 'Hinweis: Auf GitHub Pages läuft kein PHP. Auf Netcup übernimmt send-mail.php den Versand.';
+          return;
+        }
+
         e.preventDefault();
         feedback.className = 'form-feedback';
         feedback.textContent = 'Wird gesendet...';
@@ -106,23 +110,21 @@
             method: 'POST',
             body: new FormData(form)
           });
-          const data = await response.json();
-
-          if (response.ok && data.ok) {
+          const text = await response.text();
+          if (response.ok) {
             feedback.className = 'form-feedback success';
-            feedback.textContent = 'Nachricht wurde gesendet. Vielen Dank!';
+            feedback.textContent = text || 'Nachricht wurde gesendet.';
             form.reset();
           } else {
             feedback.className = 'form-feedback error';
-            feedback.textContent = data.error || 'Senden fehlgeschlagen. Bitte später erneut versuchen.';
+            feedback.textContent = text || 'Versand derzeit nicht möglich.';
           }
         } catch (err) {
           feedback.className = 'form-feedback error';
-          feedback.textContent = 'PHP-Endpunkt noch nicht aktiv (läuft auf deinem Netcup-Server mit send-mail.php).';
+          feedback.textContent = 'Verbindung fehlgeschlagen. Bitte später erneut versuchen.';
         }
       });
     })();
   </script>
-
 </body>
 </html>
