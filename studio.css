@@ -26,8 +26,8 @@ html {
 body {
   min-height: 100vh;
   background:
-    radial-gradient(circle at 88% 8%, rgba(165, 243, 252, 0.06) 0%, transparent 32%),
-    radial-gradient(circle at 12% 85%, rgba(255, 90, 38, 0.04) 0%, transparent 35%),
+    radial-gradient(circle at 85% 15%, rgba(56, 189, 248, 0.08) 0%, transparent 38%),
+    radial-gradient(circle at 15% 88%, rgba(255, 90, 38, 0.05) 0%, transparent 40%),
     var(--bg-abyss);
   color: var(--text-foam);
   display: flex;
@@ -45,7 +45,7 @@ body {
   align-items: center;
   gap: 1.2rem 2rem;
   padding: 1.4rem 3.5rem;
-  background: rgba(8, 16, 24, 0.86);
+  background: rgba(8, 16, 24, 0.88);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-subtle);
 }
@@ -115,13 +115,51 @@ body {
   width: 100%;
   max-width: 1180px;
   margin: 0 auto;
-  padding: 4.5rem 3.5rem 6rem;
+  padding: 3rem 3.5rem 6rem;
   flex: 1;
 }
 
+/* BILD-KOPFBEREICH MIT SANFTER DUNKEL-VERBLENDUNG */
 .page-hero {
-  max-width: 720px;
-  margin-bottom: 4rem;
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  padding: 3.6rem 3rem;
+  margin-bottom: 3.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: #0b1622;
+  background-size: cover;
+  background-position: center;
+}
+
+.page-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(8, 16, 24, 0.9) 0%, rgba(8, 16, 24, 0.62) 55%, rgba(8, 16, 24, 0.25) 100%),
+    linear-gradient(180deg, rgba(8, 16, 24, 0.2) 0%, rgba(8, 16, 24, 0.92) 100%);
+  z-index: 0;
+}
+
+.page-hero > * {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-apps {
+  background-image: url("bg-dolphins.jpg");
+  background-position: 65% 45%;
+}
+
+.hero-design {
+  background-image: url("bg-village.jpg");
+  background-position: 65% 55%;
+}
+
+.hero-projekte {
+  background-image: url("bg-storks.jpg");
+  background-position: 70% 45%;
 }
 
 .page-kicker {
@@ -143,12 +181,14 @@ body {
   line-height: 1.04;
   letter-spacing: 0.01em;
   margin-bottom: 1.25rem;
+  max-width: 680px;
 }
 
 .page-lead {
   font-size: 1.05rem;
   line-height: 1.65;
-  color: rgba(244, 246, 248, 0.76);
+  color: rgba(244, 246, 248, 0.84);
+  max-width: 660px;
 }
 
 /* PROJEKT- & LEISTUNGS-RASTER */
@@ -405,7 +445,10 @@ body {
     padding: 1.2rem 1.5rem;
   }
   .page-wrap {
-    padding: 3rem 1.5rem 4rem;
+    padding: 2.2rem 1.5rem 4rem;
+  }
+  .page-hero {
+    padding: 2.2rem 1.6rem;
   }
   .contact-layout {
     grid-template-columns: 1fr;
