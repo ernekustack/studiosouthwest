@@ -221,7 +221,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 0.6rem;
+      gap: 0.75rem;
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.72rem;
       color: var(--text-muted);
@@ -236,12 +236,12 @@
 
     .beam-control {
       flex-shrink: 0;
-      background: rgba(8, 16, 24, 0.78);
-      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: rgba(8, 16, 24, 0.82);
+      border: 1px solid rgba(255, 255, 255, 0.24);
       color: var(--text-foam);
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.72rem;
-      padding: 0.45rem 0.85rem;
+      padding: 0.45rem 0.9rem;
       border-radius: 6px;
       cursor: pointer;
     }
@@ -324,7 +324,7 @@
 
       .beam-control {
         font-size: 0.58rem;
-        padding: 0.32rem 0.5rem;
+        padding: 0.32rem 0.55rem;
       }
     }
   </style>
@@ -412,8 +412,9 @@
 
   <script>
     (function () {
-      let lanternRelX = 0.7975;
-      let lanternRelY = -0.3050;
+      // Laterne des Leuchtturms oben rechts im Bild
+      let lanternRelX = 0.878;
+      let lanternRelY = 0.112;
 
       const STEP_DURATION = 5500;
 
@@ -428,11 +429,158 @@
       const toggleBtn = document.getElementById('toggleSweepBtn');
       const statusText = document.getElementById('statusText');
 
-      let beaconX = window.innerWidth * 0.78;
+      let beaconX = window.innerWidth * 0.86;
       let beaconY = window.innerHeight * 0.12;
       let currentTargetY = window.innerHeight * 0.36;
       let displayedY = currentTargetY;
       let activeIndex = 0;
       let isAuto = true;
       let isHovering = false;
-      let lastSwitchTime = performance.
+      let lastSwitchTime = performance.now();
+
+      function updateBeaconOrigin() {
+        try {
+          const stageRect = stage.getBoundingClientRect();
+          const cw = stageRect.width || window.innerWidth || 1280;
+          const ch = stageRect.height || window.innerHeight || 720;
+
+          beamSvg.setAttribute('viewBox', `0 0 ${cw} ${ch}`);
+
+          const nw = img.naturalWidth || 1600;
+          const nh = img.naturalHeight || 900;
+          const imgRatio = nw / nh;
+          const stageRatio = cw / ch;
+
+          const isMobile = cw <= 768;
+          const focusX = isMobile ? 0.86 : 0.5;
+          const focusY = isMobile ? 0.18 : 0.5;
+
+          let renderW, renderH, offsetX, offsetY;
+          if (stageRatio > imgRatio) {
+            renderW = cw;
+            renderH = cw / imgRatio;
+            offsetX = 0;
+            offsetY = (ch - renderH) * focusY;
+          } else {
+            renderH = ch;
+            renderW = ch * imgRatio;
+            offsetX = (cw - renderW) * focusX;
+            offsetY = 0;
+          }
+
+          beaconX = offsetX + renderW * lanternRelX;
+          beaconY = offsetY + renderH * lanternRelY;
+
+          lanternGlow.setAttribute('cx', beaconX);
+          lanternGlow.setAttribute('cy', beaconY);
+        } catch (err) {
+          beaconX = window.innerWidth * 0.86;
+          beaconY = window.innerHeight * 0.12;
+        }
+      }
+
+      function getItemTargetY(index) {
+        try {
+          const el = items[index];
+          if (!el) return window.innerHeight * 0.4;
+          const stageRect = stage.getBoundingClientRect();
+          const itemRect = el.getBoundingClientRect();
+          if (!itemRect.height) return window.innerHeight * (0.35 + index * 0.1);
+          return (itemRect.top + itemRect.height / 2) - stageRect.top;
+        } catch (err) {
+          return window.innerHeight * (0.35 + index * 0.1);
+        }
+      }
+
+      function setActiveItem(index) {
+        activeIndex = index;
+        items.forEach((el, idx) => {
+          el.classList.toggle('illuminated', idx === index);
+        });
+        currentTargetY = getItemTargetY(index);
+      }
+
+      window.addEventListener('keydown', (e) => {
+        const step = e.shiftKey ? 0.005 : 0.0015;
+        let changed = false;
+        if (e.key === 'ArrowLeft')  { lanternRelX -= step; changed = true; }
+        if (e.key === 'ArrowRight') { lanternRelX += step; changed = true; }
+        if (e.key === 'ArrowUp')    { lanternRelY -= step; changed = true; }
+        if (e.key === 'ArrowDown')  { lanternRelY += step; changed = true; }
+        if (changed) {
+          e.preventDefault();
+          updateBeaconOrigin();
+          if (statusText) {
+            statusText.textContent = `ORIGIN X: ${lanternRelX.toFixed(4)} • Y: ${lanternRelY.toFixed(4)}`;
+          }
+        }
+      });
+
+      items.forEach((item, idx) => {
+        item.addEventListener('mouseenter', () => {
+          isHovering = true;
+          setActiveItem(idx);
+        });
+        item.addEventListener('mouseleave', () => {
+          isHovering = false;
+          lastSwitchTime = performance.now();
+        });
+      });
+
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          isAuto = !isAuto;
+          toggleBtn.textContent = isAuto ? 'STRAHL: AUTOMATIK AN' : 'STRAHL: PAUSIERT';
+          lastSwitchTime = performance.now();
+        });
+      }
+
+      window.addEventListener('resize', () => {
+        updateBeaconOrigin();
+        currentTargetY = getItemTargetY(activeIndex);
+      });
+
+      if (img.complete) {
+        updateBeaconOrigin();
+      } else {
+        img.addEventListener('load', updateBeaconOrigin);
+      }
+
+      function animate(now) {
+        if (isAuto && !isHovering && (now - lastSwitchTime >= STEP_DURATION)) {
+          const nextIndex = (activeIndex + 1) % items.length;
+          setActiveItem(nextIndex);
+          lastSwitchTime = now;
+        }
+
+        displayedY += (currentTargetY - displayedY) * 0.045;
+
+        beamGrad.setAttribute('x1', beaconX);
+        beamGrad.setAttribute('y1', beaconY);
+        beamGrad.setAttribute('x2', 0);
+        beamGrad.setAttribute('y2', displayedY);
+
+        const tipHalf = 3.5;
+        const outerSpread = Math.max(85, window.innerHeight * 0.12);
+        const coreSpread = Math.max(28, window.innerHeight * 0.042);
+
+        beamOuter.setAttribute(
+          'points',
+          `${beaconX},${beaconY - tipHalf} ${beaconX},${beaconY + tipHalf} -40,${displayedY + outerSpread} -40,${displayedY - outerSpread}`
+        );
+        beamCore.setAttribute(
+          'points',
+          `${beaconX},${beaconY - 2} ${beaconX},${beaconY + 2} -40,${displayedY + coreSpread} -40,${displayedY - coreSpread}`
+        );
+
+        requestAnimationFrame(animate);
+      }
+
+      updateBeaconOrigin();
+      setActiveItem(0);
+      displayedY = currentTargetY;
+      requestAnimationFrame(animate);
+    })();
+  </script>
+</body>
+</html>
