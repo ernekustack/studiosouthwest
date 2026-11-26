@@ -337,7 +337,7 @@
 </head>
 <body>
 
-  <main class="hero-stage" id="heroStage">
+  <main class="hero-stage" id="heroStage" tabindex="-1">
     <img src="coast.jpg" id="coastImg" alt="Alentejo Atlantikküste mit Leuchtturm" class="coast-bg" />
     <div class="coast-vignette"></div>
 
@@ -440,3 +440,160 @@
       let displayedY = currentTargetY;
       let activeIndex = 0;
       let isAuto = true;
+      let isHovering = false;
+      let lastSwitchTime = performance.now();
+
+      function updateBeaconOrigin() {
+        try {
+          const stageRect = stage.getBoundingClientRect();
+          const cw = stageRect.width || window.innerWidth || 1280;
+          const ch = stageRect.height || window.innerHeight || 720;
+
+          beamSvg.setAttribute('viewBox', `0 0 ${cw} ${ch}`);
+
+          const nw = img.naturalWidth || 1600;
+          const nh = img.naturalHeight || 900;
+          const imgRatio = nw / nh;
+          const stageRatio = cw / ch;
+
+          const isMobile = cw <= 768;
+          const focusX = isMobile ? 0.86 : 0.5;
+          const focusY = isMobile ? 0.18 : 0.5;
+
+          let renderW, renderH, offsetX, offsetY;
+          if (stageRatio > imgRatio) {
+            renderW = cw;
+            renderH = cw / imgRatio;
+            offsetX = 0;
+            offsetY = (ch - renderH) * focusY;
+          } else {
+            renderH = ch;
+            renderW = ch * imgRatio;
+            offsetX = (cw - renderW) * focusX;
+            offsetY = 0;
+          }
+
+          beaconX = offsetX + renderW * lanternRelX;
+          beaconY = offsetY + renderH * lanternRelY;
+
+          lanternGlow.setAttribute('cx', beaconX);
+          lanternGlow.setAttribute('cy', beaconY);
+        } catch (err) {
+          beaconX = window.innerWidth * 0.78;
+          beaconY = window.innerHeight * 0.14;
+        }
+      }
+
+      function getItemTargetY(index) {
+        try {
+          const el = items[index];
+          if (!el) return window.innerHeight * 0.4;
+          const stageRect = stage.getBoundingClientRect();
+          const itemRect = el.getBoundingClientRect();
+          if (!itemRect.height) return window.innerHeight * (0.35 + index * 0.1);
+          return (itemRect.top + itemRect.height / 2) - stageRect.top;
+        } catch (err) {
+          return window.innerHeight * (0.35 + index * 0.1);
+        }
+      }
+
+      function setActiveItem(index) {
+        activeIndex = index;
+        items.forEach((el, idx) => {
+          el.classList.toggle('illuminated', idx === index);
+        });
+        currentTargetY = getItemTargetY(index);
+      }
+
+      function handleArrowKey(e) {
+        const step = e.shiftKey ? 0.005 : 0.0015;
+        let changed = false;
+        if (e.key === 'ArrowLeft')  { lanternRelX -= step; changed = true; }
+        if (e.key === 'ArrowRight') { lanternRelX += step; changed = true; }
+        if (e.key === 'ArrowUp')    { lanternRelY -= step; changed = true; }
+        if (e.key === 'ArrowDown')  { lanternRelY += step; changed = true; }
+        if (changed) {
+          e.preventDefault();
+          updateBeaconOrigin();
+          if (statusText) {
+            statusText.textContent = `ORIGIN X: ${lanternRelX.toFixed(4)} • Y: ${lanternRelY.toFixed(4)}`;
+          }
+        }
+      }
+
+      window.addEventListener('keydown', handleArrowKey);
+      document.addEventListener('keydown', handleArrowKey);
+      stage.addEventListener('click', () => {
+        if (document.activeElement !== toggleBtn && !document.activeElement?.closest('a')) {
+          stage.focus({ preventScroll: true });
+        }
+      });
+
+      items.forEach((item, idx) => {
+        item.addEventListener('mouseenter', () => {
+          isHovering = true;
+          setActiveItem(idx);
+        });
+        item.addEventListener('mouseleave', () => {
+          isHovering = false;
+          lastSwitchTime = performance.now();
+        });
+      });
+
+      if (toggleBtn) {
+        toggleBtn.addEventListener('click', () => {
+          isAuto = !isAuto;
+          toggleBtn.textContent = isAuto ? 'STRAHL: AUTOMATIK AN' : 'STRAHL: PAUSIERT';
+          lastSwitchTime = performance.now();
+        });
+      }
+
+      window.addEventListener('resize', () => {
+        updateBeaconOrigin();
+        currentTargetY = getItemTargetY(activeIndex);
+      });
+
+      if (img.complete) {
+        updateBeaconOrigin();
+      } else {
+        img.addEventListener('load', updateBeaconOrigin);
+      }
+
+      function animate(now) {
+        if (isAuto && !isHovering && (now - lastSwitchTime >= STEP_DURATION)) {
+          const nextIndex = (activeIndex + 1) % items.length;
+          setActiveItem(nextIndex);
+          lastSwitchTime = now;
+        }
+
+        displayedY += (currentTargetY - displayedY) * 0.045;
+
+        beamGrad.setAttribute('x1', beaconX);
+        beamGrad.setAttribute('y1', beaconY);
+        beamGrad.setAttribute('x2', 0);
+        beamGrad.setAttribute('y2', displayedY);
+
+        const tipHalf = 3.5;
+        const outerSpread = Math.max(85, window.innerHeight * 0.12);
+        const coreSpread = Math.max(28, window.innerHeight * 0.042);
+
+        beamOuter.setAttribute(
+          'points',
+          `${beaconX},${beaconY - tipHalf} ${beaconX},${beaconY + tipHalf} -40,${displayedY + outerSpread} -40,${displayedY - outerSpread}`
+        );
+        beamCore.setAttribute(
+          'points',
+          `${beaconX},${beaconY - 2} ${beaconX},${beaconY + 2} -40,${displayedY + coreSpread} -40,${displayedY - coreSpread}`
+        );
+
+        requestAnimationFrame(animate);
+      }
+
+      updateBeaconOrigin();
+      setActiveItem(0);
+      displayedY = currentTargetY;
+      requestAnimationFrame(animate);
+    })();
+  </script>
+</body>
+</html>
